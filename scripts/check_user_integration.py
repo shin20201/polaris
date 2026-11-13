@@ -36,15 +36,18 @@ def main():
                     assert first.status_code == 200, first.text
                     assert first.json()["is_new_user"] is True
                     assert first.json()["name"] == "사용자"
-                    kakao.return_value = KakaoUser(kakao_user.kakao_id, "테스트닉네임")
+                    kakao.return_value = KakaoUser(kakao_user.kakao_id, "테스트닉네임", "guardian-test@example.com")
                     again = client.post("/api/v1/auth/kakao", json={"kakao_token": "test"})
                     assert again.status_code == 200, again.text
                     assert again.json()["is_new_user"] is False
                     assert again.json()["name"] == "테스트닉네임"
+                    email_headers = {"Authorization": "Bearer " + again.json()["access_token"]}
+                    assert client.get("/api/v1/users/me", headers=email_headers).json()["email"] == "guardian-test@example.com"
                     kakao.return_value = kakao_user
                     missing_name = client.post("/api/v1/auth/kakao", json={"kakao_token": "test"})
                     assert missing_name.status_code == 200, missing_name.text
                     assert missing_name.json()["name"] == "테스트닉네임"
+                    assert client.get("/api/v1/users/me", headers=email_headers).json()["email"] is None
                     headers = {"Authorization": "Bearer " + first.json()["access_token"]}
                     assert client.get("/api/v1/users/me").status_code == 401
                     me = client.get("/api/v1/users/me", headers=headers)

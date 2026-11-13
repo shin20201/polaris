@@ -10,6 +10,7 @@ from app.core.security import unauthorized
 class KakaoUser:
     kakao_id: int
     name: str | None
+    email: str | None = None
 
 
 async def get_kakao_user(token: str, app_id: int) -> KakaoUser:
@@ -35,7 +36,14 @@ async def get_kakao_user(token: str, app_id: int) -> KakaoUser:
                 name = data.get("properties", {}).get("nickname")
             if name is not None and not isinstance(name, str):
                 raise ValueError
-            return KakaoUser(kakao_id, name)
+            account = data.get("kakao_account", {})
+            email = account.get("email")
+            if email is not None and (not isinstance(email, str) or len(email) > 320):
+                raise ValueError
+            # 보호자 연결에는 카카오가 유효성과 소유자 인증을 확인한 이메일만 사용합니다.
+            if account.get("is_email_valid") is not True or account.get("is_email_verified") is not True:
+                email = None
+            return KakaoUser(kakao_id, name, email)
     except httpx.RequestError:
         raise HTTPException(503, "카카오 인증 서버에 연결할 수 없습니다.") from None
     except (httpx.HTTPStatusError, ValueError, KeyError, TypeError, AttributeError):

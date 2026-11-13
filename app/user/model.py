@@ -13,6 +13,7 @@ class User(Base):
     kakao_id: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
 
     name: Mapped[str] = mapped_column(String(50), nullable=False)
+    email: Mapped[str | None] = mapped_column(String(320), nullable=True, index=True)
 
     guardian_notification: Mapped[bool | None] = mapped_column(
         Boolean, nullable=True, default=False, server_default="false"

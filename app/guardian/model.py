@@ -20,4 +20,4 @@ class Guardian(Base):
 
     nickname: Mapped[str] = mapped_column(String(50), nullable=False)
     profile_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    kakao_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    kakao_email: Mapped[str | None] = mapped_column(String(320), nullable=True)

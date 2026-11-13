@@ -12,8 +12,8 @@ def get_by_kakao_id(db: Session, kakao_id: str) -> User | None:
     return db.scalar(select(User).where(User.kakao_id == kakao_id))
 
 
-def create(db: Session, kakao_id: str, name: str) -> User:
-    user = User(kakao_id=kakao_id, name=name, guardian_notification=False)
+def create(db: Session, kakao_id: str, name: str, email: str | None = None) -> User:
+    user = User(kakao_id=kakao_id, name=name, email=email, guardian_notification=False)
     db.add(user)
     db.flush()
     return user

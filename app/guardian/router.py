@@ -1,13 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
 from app.db.database import get_db
-from app.guardian.model import Guardian
-from app.guardian.schema import GuardianResponse
+from app.guardian import repository, service
+from app.guardian.schema import GuardianCreate, GuardianResponse
 from app.user.model import User
 
 router = APIRouter(prefix="/api/v1/guardians", tags=["guardians"])
@@ -19,8 +18,13 @@ def list_guardians(
     db: Annotated[Session, Depends(get_db)],
 ):
 
-    return db.scalars(
-        select(Guardian)
-        .where(Guardian.protected_user_id == current_user.user_id)
-        .order_by(Guardian.guardian_id)
-    ).all()
+    return repository.list_for_user(db, current_user.user_id)
+
+
+@router.post("", response_model=GuardianResponse, status_code=201)
+def add_guardian(
+    body: GuardianCreate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    return service.add_guardian(db, current_user.user_id, str(body.email))

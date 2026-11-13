@@ -1,4 +1,8 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+
+class GuardianCreate(BaseModel):
+    email: EmailStr
 
 
 class GuardianResponse(BaseModel):

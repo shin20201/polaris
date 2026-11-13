@@ -16,7 +16,7 @@ class LoginUser:
 
 
 class UserGateway(Protocol):
-    def get_or_create_kakao_user(self, kakao_id: int, name: str | None) -> LoginUser:
+    def get_or_create_kakao_user(self, kakao_id: int, name: str | None, email: str | None = None) -> LoginUser:
         """Atomically find/create and commit a user; kakao_id must be unique."""
         ...
 
@@ -25,9 +25,9 @@ class DatabaseUserGateway:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_or_create_kakao_user(self, kakao_id: int, name: str | None) -> LoginUser:
+    def get_or_create_kakao_user(self, kakao_id: int, name: str | None, email: str | None = None) -> LoginUser:
         user, is_new = service.get_or_create_kakao_user(
-            self.db, str(kakao_id), name,
+            self.db, str(kakao_id), name, email,
         )
         return LoginUser(user.user_id, user.name, is_new)
 
